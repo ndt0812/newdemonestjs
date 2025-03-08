@@ -1,55 +1,65 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
+import { CreateAuthDto } from './dto/login.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user.dto';
+import { ResponseData } from 'src/utils/schemas/common.schema';
+import { StringToMd5 } from 'src/utils/md5-helper';
+import { AdminGuard } from 'src/guard/admin.guard';
+import { ExpressRequest } from 'src/utils/types/expressRequest.interface';
 
-class Product {
-  id: number;
-  name: string;
-  price: number;
-}
-
-const products: Product[] = [];
-
-@Controller('auth')
+@ApiTags("Admin/Auth")
+@Controller('admin/auth')
 export class AuthController {
-  // constructor(private readonly authService: AuthService) { }
+  constructor(private readonly authService: AuthService) { }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all products' })
-  @ApiResponse({ status: 200, description: 'Return all products.' })
-  getAll(): Product[] {
-    return products;
+  @Post('register')
+  async register(
+    @Body() createUserDto: CreateUserDto
+  ) {
+    let response: ResponseData = { status: false }
+    if (createUserDto.Password != createUserDto.RePassword) {
+      response.message = "Mật khẩu nhập không trùng nhau!"
+
+      return response
+    }
+
+    if (!createUserDto.UserName) {
+      response.message = "UserName ko được để trống!"
+      return response
+    }
+
+    let userName = await this.authService.exist({ where: { UserName: createUserDto.UserName } });
+    if (userName) {
+      response.message = "UserName đã tồn tại!"
+      return response
+    }
+
+    createUserDto.Password = StringToMd5(createUserDto.Password);
+    response = await this.authService.register(createUserDto);
+
+    return response
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get product by ID' })
-  @ApiResponse({ status: 200, description: 'Return product by ID.' })
-  getById(@Param('id') id: number): Product {
-    return products.find(p => p.id === Number(id));
+  @Post("login")
+  async auth(@Body() createAuthDto: CreateAuthDto) {
+    let response: ResponseData = { status: false }
+    response = await this.authService.login(createAuthDto);
+    return response
   }
 
-  @Post()
-  @ApiOperation({ summary: 'Create a new product' })
-  create(@Body() product: Product): string {
-    products.push({ ...product, id: products.length + 1 });
-    return 'Product created successfully';
-  }
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @Get("info")
+  async getInfo(@Req() req: ExpressRequest) {
+    let response: ResponseData = { status: false }
 
-  @Put(':id')
-  @ApiOperation({ summary: 'Update a product' })
-  update(@Param('id') id: number, @Body() product: Product): string {
-    const index = products.findIndex(p => p.id === Number(id));
-    if (index !== -1) products[index] = product;
-    return 'Product updated successfully';
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete a product' })
-  delete(@Param('id') id: number): string {
-    const index = products.findIndex(p => p.id === Number(id));
-    if (index !== -1) products.splice(index, 1);
-    return 'Product deleted successfully';
+    response.status = true
+    response.data = req.user
+    return response
   }
 }
+
+
