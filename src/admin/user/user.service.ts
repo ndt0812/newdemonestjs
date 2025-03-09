@@ -7,6 +7,7 @@ import { DeepPartial, FindManyOptions, FindOneOptions, Repository } from 'typeor
 import { ResponseData } from 'src/utils/schemas/common.schema';
 import { ExpressRequest } from 'src/utils/types/expressRequest.interface';
 import { IPaginationOptions } from 'src/utils/types/pagination-options';
+import { ApplicationTypeEnums } from 'src/utils/enums.utils';
 
 @Injectable()
 export class UserService {
@@ -41,6 +42,8 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto, req: ExpressRequest) {
     let response: ResponseData = { status: false }
+
+    createUserDto.ApplicationType = createUserDto.IsAdmin == true ? ApplicationTypeEnums.Admin : ApplicationTypeEnums.User
     let info = await this.userRepository.save(
       this.userRepository.create({
         ...createUserDto,

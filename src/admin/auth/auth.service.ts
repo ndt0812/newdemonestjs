@@ -10,6 +10,10 @@ import { ApplicationTypeEnums } from 'src/utils/enums.utils';
 import { StringToMd5 } from 'src/utils/md5-helper';
 import * as ms from 'ms';
 import { JwtService } from '@nestjs/jwt';
+import * as moment from 'moment';
+import { CacheService } from 'src/cache/cache.service';
+import { ExpressRequest } from 'src/utils/types/expressRequest.interface';
+import { getJwtToken } from 'src/utils/decorator/jwt.decorator';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +21,7 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(Users)
     private usersRepository: Repository<Users>,
+    private cacheService: CacheService
   ) { }
 
   async exist(options?: FindManyOptions<Users>) {
@@ -65,8 +70,24 @@ export class AuthService {
       Info: user,
     }
 
+    let ttl = moment(tokenExpires!).diff(moment())
+    await this.cacheService.set(user.Id, response.token, ttl);
+
     return response
 
+  }
+
+  async logout(req: ExpressRequest) {
+    let response: ResponseData = { status: false }
+    let jwt: string = getJwtToken(req);
+
+    let session = await this.cacheService.get(jwt);
+    if (session) {
+      await this.cacheService.delete(jwt);
+    }
+
+    response.status = true;
+    return response;
   }
 
   private async getTokensData(data: { id: number, userName: string }) {

@@ -9,9 +9,10 @@ import { ResponseData } from 'src/utils/schemas/common.schema';
 import { StringToMd5 } from 'src/utils/md5-helper';
 import { AdminGuard } from 'src/guard/admin.guard';
 import { ExpressRequest } from 'src/utils/types/expressRequest.interface';
+import { getJwtToken } from 'src/utils/decorator/jwt.decorator';
 
-@ApiTags("Admin/Auth")
-@Controller('admin/auth')
+@ApiTags("Auth")
+@Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
@@ -59,6 +60,13 @@ export class AuthController {
     response.status = true
     response.data = req.user
     return response
+  }
+
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @Post("logout")
+  async logOut(@Req() req: ExpressRequest) {
+    return await this.authService.logout(req);
   }
 }
 

@@ -1,10 +1,11 @@
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
+import { Logger, Module, OnModuleInit, } from '@nestjs/common';
 import { AuthModule } from './admin/auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Users } from './database/entities/users.entity';
 import { UserModule } from './admin/user/user.module';
+import { CacheModule } from './cache/cache.module';
 
 @Module({
   imports: [
@@ -22,7 +23,11 @@ import { UserModule } from './admin/user/user.module';
 
     AuthModule,
 
-    UserModule],
+    UserModule,
+
+    CacheModule,
+
+  ],
   controllers: [],
   providers: [],
 })
