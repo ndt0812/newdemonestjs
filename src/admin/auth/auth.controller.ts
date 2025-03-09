@@ -10,6 +10,7 @@ import { StringToMd5 } from 'src/utils/md5-helper';
 import { AdminGuard } from 'src/guard/admin.guard';
 import { ExpressRequest } from 'src/utils/types/expressRequest.interface';
 import { getJwtToken } from 'src/utils/decorator/jwt.decorator';
+import { AuthChangePasswordDto } from './dto/auth-change-password.dto';
 
 @ApiTags("Auth")
 @Controller('auth')
@@ -67,6 +68,23 @@ export class AuthController {
   @Post("logout")
   async logOut(@Req() req: ExpressRequest) {
     return await this.authService.logout(req);
+  }
+
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth()
+  @Post("change-password")
+  async changePassword(
+    @Body() authChangePasswordDto: AuthChangePasswordDto,
+    @Req() req: ExpressRequest) {
+    let response: ResponseData = { status: false }
+
+    if (authChangePasswordDto.NewPassword != authChangePasswordDto.ReNewPassword) {
+      response.message = "Mật khẩu nhập không trùng nhau"
+      return response
+    }
+    authChangePasswordDto.Id = req?.user?.Id
+    response = await this.authService.changePassword(authChangePasswordDto);
+    return response
   }
 }
 

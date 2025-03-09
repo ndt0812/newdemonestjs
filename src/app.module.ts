@@ -6,6 +6,8 @@ import { DataSource } from 'typeorm';
 import { Users } from './database/entities/users.entity';
 import { UserModule } from './admin/user/user.module';
 import { CacheModule } from './cache/cache.module';
+import { UserAccessHistoriesModule } from './admin/user-access-histories/user-access-histories.module';
+import { UserAccessHistories } from './database/entities/userAccessHistories.entity';
 
 @Module({
   imports: [
@@ -14,8 +16,8 @@ import { CacheModule } from './cache/cache.module';
       type: "postgres",
       url: process.env.DATABASE_URL,
       autoLoadEntities: true,
-      entities: [Users],
-      synchronize: true,
+      entities: [Users, UserAccessHistories],
+      synchronize: false,
       ssl: {
         rejectUnauthorized: false
       }
@@ -26,6 +28,8 @@ import { CacheModule } from './cache/cache.module';
     UserModule,
 
     CacheModule,
+
+    UserAccessHistoriesModule
 
   ],
   controllers: [],
