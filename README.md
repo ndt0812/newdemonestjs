@@ -22,64 +22,176 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# 🚀 Admin API Demo
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📌 Giới thiệu
+Đây là bản demo API dành cho Admin, được xây dựng với **NestJS**, **PostgreSQL**, và **Cache** để quản lý authentication.  
+API này cung cấp các tính năng quản lý **User**, **Admin**, và **lịch sử truy cập**.  
 
-## Project setup
+🔗 **Link Swagger UI:** [https://newdemonestjs.onrender.com/api](https://newdemonestjs.onrender.com/api)  
+📌 **Bản demo được deploy tại Render.com**  
 
-```bash
-$ npm install
-```
+---
 
-## Compile and run the project
+## 🔑 **Hướng dẫn sử dụng**
+### **1️⃣ Đăng ký tài khoản**  
+📌 **Chỉ dành cho User, không phải Admin.**  
 
-```bash
-# development
-$ npm run start
+- **Endpoint:** `POST /auth/register`  
+- **Body Request:**  
+  ```json
+  {
+    "UserName": "ducthang",
+    "DisplayName": "Duc Thang Nguyen",
+    "Password": "Thang12345-",
+    "RePassword": "Thang12345-"
+  }
+  ```
+- **Validate mật khẩu:**  
+  - Tối thiểu **6 ký tự**.  
+  - Ít nhất **1 chữ cái viết hoa**.  
+  - Ít nhất **1 ký tự đặc biệt**.  
+  - Không chứa khoảng trắng.  
 
-# watch mode
-$ npm run start:dev
+---
 
-# production mode
-$ npm run start:prod
-```
+### **2️⃣ Đăng nhập**
+- **Endpoint:** `POST /auth/login`  
+- **Body Request:**  
+  ```json
+  {
+    "UserName": "admin",
+    "Password": "Admin@123"
+  }
+  ```
+- **Response:**  
+  ```json
+  {
+    "status": true,
+    "token": "JWT_TOKEN",
+    "tokenExpires": 1741608425413,
+    "data": {
+      "Info": {
+        "Id": 12,
+        "UserName": "admin",
+        "DisplayName": "admin",
+        "IsAdmin": true
+      }
+    }
+  }
+  ```
+📌 **Hướng dẫn sử dụng Token**  
+- Khi gọi API, bạn cần **gửi Token trong Response**:  
+  ```
+  Authorize: <JWT_TOKEN>
+  ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+### **3️⃣ Check thông tin tài khoản**  
+📌 **Lấy thông tin của tài khoản đang đăng nhập.**  
+- **Endpoint:** `GET /auth/info`  
+- **Response:** Thông tin của tài khoản.  
 
-# e2e tests
-$ npm run test:e2e
+---
 
-# test coverage
-$ npm run test:cov
-```
+### **4️⃣ Đăng xuất**  
+📌 **Xóa token khỏi bộ nhớ cache (Redis).**  
+- **Endpoint:** `POST /auth/logout`  
+- **Hành động:** Token sẽ bị xóa khỏi bộ lưu trữ của Cache, user cần đăng nhập lại để sử dụng API.  
 
-## Resources
+---
 
-Check out a few resources that may come in handy when working with NestJS:
+### **5️⃣ Đổi mật khẩu**  
+📌 **Nhập mật khẩu cũ và nhập mật khẩu mới 2 lần.**  
+- **Endpoint:** `POST /auth/change-password`  
+- **Body Request:**  
+  ```json
+  {
+    "oldPassword": "Admin@123",
+    "newPassword": "NewPass123!",
+    "confirmPassword": "NewPass123!"
+  }
+  ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+### **6️⃣ Lấy danh sách User**  
+📌 **Phân quyền theo cấp bậc User/Admin:**  
+- **Admin** có thể xem tất cả User.  
+- **User** chỉ thấy những người dùng khác cũng là **User**.  
+- **Endpoint:** `GET /user/get-users`  
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+### **7️⃣ Tạo User**  
+📌 **Chỉ Admin mới được phép tạo User.**  
+- **Endpoint:** `POST /user/create`  
+- **Body Request:**  
+  ```json
+  {
+    "UserName": "YourUserName",
+    "DisplayName": "YourName",
+    "Password": "123456",
+    "RePassword": "123456",
+    "IsAdmin": false
+  }
+  ```
+📌 **Validate Password** (giống như phần đăng ký).  
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+---
 
-## License
+### **8️⃣ Sửa thông tin cá nhân**  
+📌 **Chỉnh sửa thông tin của tài khoản đang đăng nhập.**  
+- **Endpoint:** `POST /user/update-info`  
+- **Body Request:**  
+  ```json
+  {
+    "UserName": "YourUserName",
+    "DisplayName": "YourName"
+  }
+  ```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+### **9️⃣ Lấy thông tin của một User cụ thể**  
+📌 **Chỉ Admin mới có quyền xem thông tin chi tiết của User khác.**  
+- **Endpoint:** `GET /user/update/:id`  
+- **Yêu cầu:** Cung cấp `id` của User.  
+
+---
+
+### **🔟 Sửa thông tin User**  
+📌 **Chỉ Admin mới được phép chỉnh sửa thông tin User khác.**  
+- **Endpoint:** `POST /user/update/:id`  
+- **Yêu cầu:** Nhập `id` của User cần chỉnh sửa.  
+- **Body Request:**  
+  ```json
+  {
+    "UserName": "YourUserName",
+    "DisplayName": "YourName",
+    "IsAdmin": false
+  }
+  ```
+
+---
+
+### **1️⃣1️⃣ Xóa User**  
+📌 **Chỉ Admin mới được phép xóa User.**  
+- **Endpoint:** `DELETE /user/remove/:id`  
+- **Yêu cầu:** Cung cấp `id` của User cần xóa.  
+
+---
+
+### **1️⃣2️⃣ Truy xuất lịch sử đăng nhập**  
+📌 **Admin có thể xem lịch sử đăng nhập & đăng xuất của User.**  
+- **Endpoint:** `GET /user-access/get`  
+- **Response:** Trả về danh sách lịch sử truy cập.  
+
+---
+
+## 📬 **Liên hệ**
+- **Người thực hiện:** Nguyễn Đức Thắng  
+- **Email:** thangcntt812@gmail.com 
+- **GitHub:** [https://github.com/ndt0812](https://github.com/ndt0812)  
+
