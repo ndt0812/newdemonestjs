@@ -28,8 +28,8 @@ export class CreateUserDto {
     @ApiProperty({ required: true, example: "123456", description: 'Nhập lại mật khẩu' })
     RePassword: string | null;
 
-    @ApiProperty({ required: true, example: `false`, description: 'Có phải Admin ko?' })
-    @IsBoolean()
-    IsAdmin: boolean;
+    // @ApiProperty({ required: true, example: `false`, description: 'Có phải Admin ko?' })
+    // @IsBoolean()
+    // IsAdmin: boolean;
 
 }

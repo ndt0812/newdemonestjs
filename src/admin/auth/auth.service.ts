@@ -34,7 +34,7 @@ export class AuthService {
   async register(createAuthDto: CreateUserDto) {
     var response: ResponseData = { status: false }
 
-    createAuthDto.ApplicationType = createAuthDto.IsAdmin == true ? ApplicationTypeEnums.Admin : ApplicationTypeEnums.User
+    createAuthDto.ApplicationType = ApplicationTypeEnums.User
     let info = await this.usersRepository.save(
       this.usersRepository.create({
         ...createAuthDto
