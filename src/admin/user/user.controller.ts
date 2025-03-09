@@ -81,9 +81,16 @@ export class UserController {
 
   @Get('update/:id')
   async update(
-    @Param('id') id: string
+    @Param('id') id: string,
+    @Req() req: ExpressRequest
   ) {
     let response: ResponseData = { status: false }
+    if (req?.user?.IsAdmin == false) {
+      response.message = "User ko có quyền thao tác tính năng này!"
+
+      return response
+    }
+
     let user = await this.userService.findOne({ where: { Id: +id } })
 
     response.status = true
