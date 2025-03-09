@@ -18,7 +18,7 @@ import { StringToMd5 } from 'src/utils/md5-helper';
 export class UserController {
   constructor(private readonly userService: UserService) { }
 
-  @Get("getUsers")
+  @Get("get-users")
   async findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
@@ -56,7 +56,7 @@ export class UserController {
     return response
   }
 
-  @Post('updateInfo')
+  @Post('update-info')
   async updateInfo(
     @Body() updateInfoDto: UpdateInfoDto,
     @Req() req: ExpressRequest
