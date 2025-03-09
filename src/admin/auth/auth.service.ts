@@ -4,7 +4,7 @@ import { UpdateAuthDto } from './dto/update-auth.dto';
 import { Users } from 'src/database/entities/users.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, ILike, Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateAccountDto } from './dto/create-account.dto';
 import { ResponseData } from 'src/utils/schemas/common.schema';
 import { AccessTypeEnums, ApplicationTypeEnums } from 'src/utils/enums.utils';
 import { StringToMd5 } from 'src/utils/md5-helper';
@@ -31,7 +31,7 @@ export class AuthService {
     return await this.usersRepository.exist(options);
   }
 
-  async register(createAuthDto: CreateUserDto) {
+  async register(createAuthDto: CreateAccountDto) {
     var response: ResponseData = { status: false }
 
     createAuthDto.ApplicationType = ApplicationTypeEnums.User

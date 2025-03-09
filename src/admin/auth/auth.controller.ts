@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/login.dto';
 import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateAccountDto } from './dto/create-account.dto';
 import { ResponseData } from 'src/utils/schemas/common.schema';
 import { StringToMd5 } from 'src/utils/md5-helper';
 import { AdminGuard } from 'src/guard/admin.guard';
@@ -19,7 +19,7 @@ export class AuthController {
 
   @Post('register')
   async register(
-    @Body() createUserDto: CreateUserDto
+    @Body() createUserDto: CreateAccountDto
   ) {
     let response: ResponseData = { status: false }
     if (createUserDto.Password != createUserDto.RePassword) {

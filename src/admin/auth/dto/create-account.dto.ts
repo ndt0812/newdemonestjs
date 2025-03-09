@@ -4,7 +4,7 @@ import { ApplicationTypeEnums } from "src/utils/enums.utils";
 import { Transform } from "class-transformer";
 import { lowerCaseTransformer } from "src/utils/transformers/lower-case.transformer";
 
-export class CreateUserDto {
+export class CreateAccountDto {
 
     @ApiProperty({ required: true, example: `YourUserName`, description: "Tên đăng nhập" })
     @Transform(lowerCaseTransformer)
